@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --bg-canvas: #111111;
+  --bg-surface: #181818;
+  --border-grid: #2b2b2b;
+  --paper-surface: #f3f1ea;
+  --paper-ink: #121212;
+  --paper-muted: #57554e;
+  --signal-red: #d92d20;
+  --terminal-green: #16a34a;
+  --aviation-amber: #d97706;
+}
+
+@theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-grid: var(--border-grid);
+  --color-paper: var(--paper-surface);
+  --color-ink: var(--paper-ink);
+  --color-signal: var(--signal-red);
+  --color-terminal: var(--terminal-green);
+  --color-amber: var(--aviation-amber);
+  --font-sans: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: #111111;
+  color: #f3f1ea;
+}
+
+/* Subtle Swiss architectural grid lines */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(43, 43, 43, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(43, 43, 43, 0.35) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Archival thermal paper grain */
+.paper-grain {
+  background-color: #f3f1ea;
+  background-image: radial-gradient(rgba(18, 18, 18, 0.04) 1px, transparent 0);
+  background-size: 12px 12px;
+}
+
+/* Rubber ink stamp texture */
+.ink-stamp {
+  border-width: 3px;
+  border-style: solid;
+  box-shadow: inset 0 0 0 1px currentColor;
+  letter-spacing: 0.08em;
+}
+
+/* Custom dark date input icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+}

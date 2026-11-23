@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "delay-receipt",
+  "compatibility_date": "2026-11-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/*",
+      "!/_next/static/*",
+      "!/*/_next/static/*"
+    ]
+  },
+  // Cloudflare D1 Free Tier (5M reads/day, 100k writes/day, 5 GB, $0/month)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "delay-receipt-db",
+      "database_id": "5cb8eee5-15d6-494a-8a18-081e38426492",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Public / non-secret runtime variables ONLY.
+  // Secrets (AIRNODEHUB_WALLET_PRIVATE_KEY, SCAN_SECRET, METRICS_ACCESS_KEY) MUST be added
+  // as encrypted Cloudflare Worker Secrets, NEVER hardcoded here or prefixed with NEXT_PUBLIC_/VITE_.
+  "vars": {
+    "DEMO_MODE": "false",
+    "NEXT_PUBLIC_APP_URL": "https://delay-receipt.barisyilmazcontact.workers.dev",
+    "AIRNODEHUB_WEATHER_PROVIDER": "open-meteo",
+    "AIRNODEHUB_MAX_USD_PER_LOOKUP": "1.20",
+    "RATE_LIMIT_MAX_PER_HOUR": "10"
+  }
+}

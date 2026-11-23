@@ -1,0 +1,37 @@
+{
+  "name": "delay-receipt",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "dev:vinext": "vite dev --port 3001",
+    "build:vinext": "vite build",
+    "start:vinext": "npx wrangler dev --config dist/server/wrangler.json",
+    "deploy:vinext": "npx wrangler deploy --config dist/server/wrangler.json"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-server-dom-webpack": "^19.3.1",
+    "viem": "^2.31.0",
+    "vinext": "^1.4.6"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.70.1",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitejs/plugin-rsc": "^0.5.39",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5",
+    "vite": "^8.3.8"
+  },
+  "type": "module"
+}

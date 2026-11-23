@@ -18,6 +18,10 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
+  },
   title: {
     default: "DELAY RECEIPT · Cryptographically Signed Airline Delay Proof",
     template: "%s · DELAY RECEIPT",

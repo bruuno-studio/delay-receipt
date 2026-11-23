@@ -34,12 +34,21 @@ export const metadata: Metadata = {
       "Debunk airline bad-weather excuses in seconds with cryptographically signed aviation and meteorological telemetry via API3 AirnodeHub.",
     type: "website",
     siteName: "DELAY RECEIPT",
+    images: [
+      {
+        url: "/og-home.png",
+        width: 1200,
+        height: 630,
+        alt: "DELAY RECEIPT · Cryptographically Signed Airline Delay Proof Boarding Pass",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "DELAY RECEIPT · Cryptographically Signed Airline Delay Proof",
     description:
       "Debunk airline bad-weather excuses in seconds with cryptographically signed aviation and weather telemetry.",
+    images: ["/og-home.png"],
   },
 };
 

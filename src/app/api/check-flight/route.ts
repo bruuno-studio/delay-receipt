@@ -29,11 +29,11 @@ export async function POST(request: NextRequest) {
     const rawDate = (body.date || "").trim();
 
     const flightNumber = normalizeFlightNumber(rawFlight);
-    if (!/^[A-Z0-9]{2}[A-Z]?\d{1,4}[A-Z]?$/.test(flightNumber)) {
+    if (!/^[A-Z0-9]{2,3}\d{1,4}[A-Z0-9]{0,2}$/.test(flightNumber)) {
       return NextResponse.json(
         {
           error:
-            "Enter a valid IATA flight number such as LH400, FR1234, BA456, or TK1951.",
+            "Enter a valid IATA flight number (e.g. LH400, FR1234, TK1952) or ICAO callsign (e.g. TKJ94L, DLH400).",
         },
         { status: 400 }
       );
@@ -106,8 +106,12 @@ export async function POST(request: NextRequest) {
       rateLimitRemaining: rate.remaining,
     });
   } catch (err) {
+    const statusCode =
+      typeof (err as { statusCode?: number })?.statusCode === "number"
+        ? (err as { statusCode: number }).statusCode
+        : 500;
     const message =
       err instanceof Error ? err.message : "Unable to verify flight telemetry.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: statusCode });
   }
 }

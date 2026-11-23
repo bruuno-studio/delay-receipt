@@ -70,6 +70,13 @@ export const AIRLINE_MAP: Record<string, AirlineProfile> = {
     claimEmail: "guestrelations@flypgs.com",
     region: "TR",
   },
+  VF: {
+    iata: "VF",
+    name: "AJet",
+    handle: "@AJET_TR",
+    claimEmail: "feedback@ajet.com",
+    region: "TR",
+  },
   EK: {
     iata: "EK",
     name: "Emirates",

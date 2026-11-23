@@ -312,7 +312,17 @@ async function callLiveAirnodeOperation(params: {
     );
   }
 
-  const parsedData = JSON.parse(envelope.data);
+  const trimmedData = (envelope.data || "").trim();
+  let parsedData: unknown = null;
+  if (trimmedData.length > 0) {
+    try {
+      parsedData = JSON.parse(trimmedData);
+    } catch {
+      throw new Error(
+        `Upstream provider ${params.listing.name} returned non-JSON payload for ${params.operation}.`
+      );
+    }
+  }
 
   return {
     parsedData,
@@ -1166,13 +1176,17 @@ export async function fetchSignedFlightProof(params: {
   const maxLookupUsd = Number(maxLookupRaw) || 1.2;
   let remainingBudget = maxLookupUsd;
 
+  // Detect 3-letter ICAO ATC callsigns (e.g. TKJ94L, THY1952, DLH400) vs 2-char IATA flight numbers (e.g. LH400, FR1234, U28412)
+  const isIcaoCallsign = /^[A-Z]{3}\d[A-Z0-9]*$/.test(flightNumber);
+  const searchBy = isIcaoCallsign ? "callsign" : "number";
+
   // 1. Flight Status via AeroDataBox Airnode
   const aeroCall = await callLiveAirnodeOperation({
     listing: AIRNODE_LISTINGS.aerodatabox,
     role: "flight_status",
     operation: "flightStatusOnDate",
     parameters: {
-      searchBy: "number",
+      searchBy,
       searchParam: flightNumber,
       dateLocal: flightDate,
       dateLocalRole: "Both",
@@ -1183,14 +1197,23 @@ export async function fetchSignedFlightProof(params: {
 
   const flightList = Array.isArray(aeroCall.parsedData)
     ? (aeroCall.parsedData as AeroFlightItem[])
-    : [aeroCall.parsedData as AeroFlightItem];
+    : aeroCall.parsedData
+      ? [aeroCall.parsedData as AeroFlightItem]
+      : [];
 
   const flight = flightList[0];
   if (!flight || !flight.departure || !flight.arrival) {
-    throw new Error(
-      `No AeroDataBox flight telemetry found for ${flightNumber} on ${flightDate}.`
-    );
+    const err = new Error(
+      `No flight record found for ${flightNumber} on ${flightDate}. If this flight is in the air right now, switch date to TODAY; or enter the passenger IATA flight number (e.g. LH400, TK1952, VF3094) instead of an ATC callsign.`
+    ) as Error & { statusCode?: number };
+    err.statusCode = 404;
+    throw err;
   }
+
+  // Prefer official IATA flight number from AeroDataBox if user searched by ICAO callsign (e.g. TKJ94L -> VF3094)
+  const resolvedFlightNumber = flight.number
+    ? normalizeFlightNumber(flight.number)
+    : flightNumber;
 
   const dep = extractAirportInfo(flight.departure);
   const arr = extractAirportInfo(flight.arrival);
@@ -1292,9 +1315,9 @@ export async function fetchSignedFlightProof(params: {
     "arrival_weather"
   );
 
-  const airline = getAirlineProfile(flightNumber, flight.airline?.name);
+  const airline = getAirlineProfile(resolvedFlightNumber, flight.airline?.name);
   const verdict = buildDelayVerdict({
-    flightNumber,
+    flightNumber: resolvedFlightNumber,
     flightStatusRaw: flight.status || "Reported",
     departure: dep,
     arrival: arr,
@@ -1312,7 +1335,7 @@ export async function fetchSignedFlightProof(params: {
     depWeatherRes.record,
     arrWeatherRes.record,
   ];
-  const shortId = `${flightNumber.toLowerCase()}-${flightDate.replace(/-/g, "")}`;
+  const shortId = `${resolvedFlightNumber.toLowerCase()}-${flightDate.replace(/-/g, "")}`;
   const totalCost = attestations.reduce((sum, a) => sum + a.priceUsd, 0);
 
   return {
@@ -1320,7 +1343,7 @@ export async function fetchSignedFlightProof(params: {
     cacheKey: `${flightNumber}:${flightDate}`,
     createdAtUtc: new Date().toISOString(),
     mode: "LIVE" as DataMode,
-    flightNumber,
+    flightNumber: resolvedFlightNumber,
     flightDate,
     airlineIata: airline.iata,
     airlineName: flight.airline?.name || airline.name,
